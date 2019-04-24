@@ -1,0 +1,38 @@
+<VirtualHost *:80>
+   ServerName site.example.com
+   <IfModule mod_rewrite.c>
+        RewriteEngine On
+        RewriteCond %{HTTPS} !=on
+        RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+    </IfModule>
+</VirtualHost>
+
+<VirtualHost *:443>
+        ServerName site.example.com
+        ServerAdmin admin@example.com
+        DocumentRoot "/opt/local/apache2/sites/site.example.com"
+        DirectoryIndex index.html index.php
+        CustomLog /opt/local/apache2/logs/access_log combinedvhost
+        ErrorLog /opt/local/apache2/logs/error_log
+       <IfModule mod_ssl.c>
+                SSLEngine On
+                SSLCipherSuite "ALL:!aNULL:!ADH:!eNULL:!LOW:!EXP:RC4+RSA:+HIGH:+MEDIUM"
+                SSLProtocol -ALL +TLSv1
+                SSLProxyEngine On
+                SSLCertificateFile "...removed..."
+                SSLCertificateKeyFile "...removed..."
+                SSLCertificateChainFile "...removed..."
+                SSLProxyProtocol -ALL +TLSv1
+                SSLProxyCheckPeerCN off
+		#SSLProxyCheckPeerName off
+        </IfModule>
+        <Directory "/opt/local/apache2/sites/site.example.com">
+                Options All -Indexes -ExecCGI -Includes +MultiViews
+       		Order allow,deny
+  		Allow from all
+	        AllowOverride None
+                <IfModule mod_dav.c>
+                        DAV Off
+                </IfModule>
+        </Directory>
+</VirtualHost>
